@@ -36,21 +36,20 @@ public class MetronomeGUI implements java.awt.event.ActionListener{
 		//ventana principal
 		JFrame window = new JFrame();
 	    window.setBounds(0,0,400,600);
+	    window.setLocationRelativeTo(null);
+	    window.setResizable(false);
 	    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    
 	    SimpleMetronomeDisplay simpleMetronomeDisplay = new SimpleMetronomeDisplay();
 	    
-	  
-  
-        // Adding panel to frame
-        simpleMetronomeDisplay.UI(window);
   
         // Setting the size of frame
         window.setSize(400, 600);
   
         window.setVisible(true);
-        
-        SimpleMetronomeDisplay.updateBPM();
+       
+        // Adding panel to frame
+        simpleMetronomeDisplay.UI(window);
 		
 	}
 	

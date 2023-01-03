@@ -2,23 +2,36 @@ package cl.uach.info090.metronome;
 
 import java.awt.Color;
 import java.awt.LayoutManager;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+
 
 import javax.swing.*;
 
 public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	
 	// texto bpm
-    private static JLabel BPMText;
-    private static JSlider BPMSlider;
-    private static int currentBPM;
+    private JLabel BPMText;
+    private JSlider BPMSlider;
 
 	public SimpleMetronomeDisplay() {
-		this.BPMSlider = new JSlider(60,500,300);
-		this.currentBPM = BPMSlider.getValue();
-	    // Creating a label to display text
-	    this.BPMText = new JLabel(String.valueOf(currentBPM));
-		// TODO Auto-generated constructor stub
+		this.BPMSlider = new JSlider(60,500,300); //Slider para cambiar BPM
+	    this.BPMText = new JLabel(); //Texto que indica los BPM actuales
 	}
+	
+	
+
+	public JLabel getBPMText() {
+		return BPMText;
+	}
+
+
+
+	public JSlider getBPMSlider() {
+		return BPMSlider;
+	}
+
+
 
 	public SimpleMetronomeDisplay(LayoutManager layout) {
 		super(layout);
@@ -43,28 +56,28 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	public void UI(JFrame window) {
   
   
-        // Creating a panel to add buttons
+        // Crear panel
         JPanel ui = new JPanel();
   
-        // Adding buttons and textfield to panel
-        // using add() method
+        // Añadir slider con indicacion de bpm
         ui.add(BPMSlider);
         ui.add(BPMText);
   
-        // setbackground of panel
+        // color de fondo
         ui.setBackground(Color.white);
+        
+        //agregar elementos a la ventana
         window.add(ui);
+        
+        
+        BPMSlider.addChangeListener(new ChangeListener() {
+        	public void stateChanged(ChangeEvent e) {
+        		// Actualiza el valor de la etiqueta con el nuevo valor del BPMSlider
+        		int BPMValue = BPMSlider.getValue();
+        		BPMText.setText(String.valueOf(BPMValue));
+            }
+        });
 		
-	}
-	
-	public static void updateBPM() { //retorna nuevo valor de bpm segun slider
-		if(currentBPM == BPMSlider.getValue()) {
-			return;
-		}
-		else {
-			currentBPM = BPMSlider.getValue();
-		    BPMText.setText(String.valueOf(currentBPM));
-		}
 	}
 
 }
