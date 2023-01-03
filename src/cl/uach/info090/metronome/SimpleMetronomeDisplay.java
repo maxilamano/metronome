@@ -1,6 +1,7 @@
 package cl.uach.info090.metronome;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.LayoutManager;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
@@ -13,9 +14,16 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	// texto bpm
     private JLabel BPMText;
     private JSlider BPMSlider;
+    
+    private int minBPM = 60;
+    private int maxBPM = 240;
+    private int initialBPM; //valor inicial de bpm
 
 	public SimpleMetronomeDisplay() {
-		this.BPMSlider = new JSlider(60,500,300); //Slider para cambiar BPM
+		minBPM = 60;
+	    maxBPM = 240;
+	    initialBPM = (maxBPM - minBPM) / 2 + minBPM;
+		this.BPMSlider = new JSlider(minBPM, maxBPM, initialBPM); //Slider para cambiar BPM
 	    this.BPMText = new JLabel(); //Texto que indica los BPM actuales
 	}
 	
@@ -58,11 +66,19 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
   
         // Crear panel
         JPanel ui = new JPanel();
+        
   
+        // Añadir slider con indicacion de bpm
+        ui.setLayout(new BoxLayout(ui, BoxLayout.Y_AXIS)); //crear layout
+        BPMSlider.setAlignmentX(Component.CENTER_ALIGNMENT); //centrar slider
+        BPMText.setAlignmentX(Component.CENTER_ALIGNMENT); //centrar texto BPM
+        
+        
+        BPMText.setText(String.valueOf(initialBPM)); //definir texto como valor inicial BPM
+        
         // Añadir slider con indicacion de bpm
         ui.add(BPMSlider);
         ui.add(BPMText);
-  
         // color de fondo
         ui.setBackground(Color.white);
         
