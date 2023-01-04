@@ -42,7 +42,7 @@ public class MetronomeGUI implements java.awt.event.ActionListener{
 	    
 	    SimpleMetronomeDisplay simpleMetronomeDisplay = new SimpleMetronomeDisplay();
 	    
-	    // Adding panel to frame
+	    // añadir ui a la ventana
         simpleMetronomeDisplay.UI(window);
 	    
         // Setting the size of frame

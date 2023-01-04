@@ -2,12 +2,16 @@ package cl.uach.info090.metronome;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.LayoutManager;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 
 public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	
@@ -82,9 +86,6 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
         // color de fondo
         ui.setBackground(Color.white);
         
-        //agregar elementos a la ventana
-        window.add(ui);
-        
         
         BPMSlider.addChangeListener(new ChangeListener() {
         	public void stateChanged(ChangeEvent e) {
@@ -93,7 +94,58 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
         		BPMText.setText(String.valueOf(BPMValue));
             }
         });
-		
+        
+        //beatIndicator
+        ui.add(beatIndicator());
+        
+        //agregar elementos a la ventana
+        window.add(ui);
 	}
+	
+	public JPanel beatIndicator(){
+		JPanel beatIndicator = new JPanel(); //panel que muestra visualmente el pulso
+		beatIndicator.setLayout(new BoxLayout(beatIndicator, BoxLayout.X_AXIS));
+		beatIndicator.setBackground(Color.white);
+		
+		//crear cuatro circulos (beats)
+		JLabel beat1 = new JLabel();
+		beat1.setOpaque(true);
+		beat1.setBackground(Color.red);
 
+		JLabel beat2 = new JLabel();
+		beat2.setOpaque(true);
+		beat2.setBackground(Color.gray);
+
+		JLabel beat3 = new JLabel();
+		beat3.setOpaque(true);
+		beat3.setBackground(Color.gray);
+
+		JLabel beat4 = new JLabel();
+		beat4.setOpaque(true);
+		beat4.setBackground(Color.gray);
+		
+		// Crea un borde redondeado
+		Border border = new LineBorder(Color.black, 1, true);
+
+		// Establece el borde redondeado en cada JLabel
+		beat1.setBorder(border);
+		beat2.setBorder(border);
+		beat3.setBorder(border);
+		beat4.setBorder(border);
+
+		// Establece el tamaño de cada JLabel
+		beat1.setPreferredSize(new Dimension(30, 30));
+		beat2.setPreferredSize(new Dimension(30, 30));
+		beat3.setPreferredSize(new Dimension(30, 30));
+		beat4.setPreferredSize(new Dimension(30, 30));
+		
+		//agregarlos al panel
+		beatIndicator.add(beat1);
+		beatIndicator.add(beat2);
+		beatIndicator.add(beat3);
+		beatIndicator.add(beat4);
+		
+		//por ultimo retornar el panel
+		return beatIndicator;
+	}
 }
