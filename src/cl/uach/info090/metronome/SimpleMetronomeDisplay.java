@@ -5,10 +5,21 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.LayoutManager;
+import java.io.File;
+
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import java.lang.Thread;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.net.URL;
 
-
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -59,9 +70,40 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 		super(layout, isDoubleBuffered);
 		// TODO Auto-generated constructor stub
 	}
+	
+	private void playSound(String filePath) {
+	    try{
+	    	File soundPath = new File(filePath); //archivo de audio
+	    	if(soundPath.exists()){
+	    		AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundPath);
+	    		Clip clip = AudioSystem.getClip(); //reproductor
+	    		clip.open(audioInput);//abrir clip
+	    		clip.start();//reproducir clip de audio
+	    	}else{
+	    		System.out.println("Sonido faltante! ("+filePath+").");
+	    	}
+	    	
+	    }
+	    catch(Exception e)
+	    {
+	    	System.out.println(e);
+	    }
+	}
 
 	public void tick() {
-		// TODO Auto-generated method stub
+		while (true) {
+	        playSound("tickSound.wav"); // reproducir sonido
+
+	        // calcular el intervalo de tiempo en milisegundos entre ejecuciones del metrónomo
+	        int interval = 60000 / BPMSlider.getValue();
+
+	        try {
+	        	Thread.sleep(interval);
+	        } catch (InterruptedException e) {
+	        	System.out.println(e);
+	            // maneja la excepción en caso de que el hilo sea interrumpido
+	        }
+	    }
 		
 	}
 	

@@ -49,6 +49,8 @@ public class MetronomeGUI implements java.awt.event.ActionListener{
         window.setSize(400, 600);
   
         window.setVisible(true);
+        
+        simpleMetronomeDisplay.tick();
 		
 	}
 	
