@@ -1,10 +1,11 @@
 package cl.uach.info090.metronome;
 
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
+import javax.swing.Timer;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -58,8 +59,8 @@ public class PulseLabel extends JLabel {
         
         //definir total de fotogramas
         this.totalFramesIdle = totalFramesIdle;
-        this.totalFramesIdle = totalFramesFirstBeat;
-        this.totalFramesIdle = totalFramesOtherBeat;
+        this.totalFramesFirstBeat = totalFramesFirstBeat;
+        this.totalFramesOtherBeat = totalFramesOtherBeat;
         this.currentFrame = 0;
         
         this.beat = beat;
@@ -72,11 +73,16 @@ public class PulseLabel extends JLabel {
     }
     
     private void setFrameDelay(int bpm){
-    	if(bpm < 90){
-    		frameDelay = 70;
+    	if(bpm < 130){
+    		frameDelay = 50;
     	}else {
-    		frameDelay = 70 - (1000/(bpm/2)-90);
+    		if (50 -(bpm-130) > 20) {
+    			frameDelay = 50 - (bpm-130);
+    		}else {
+    			frameDelay = 20;
+    		}
     	}
+    	System.out.println(frameDelay);
     }
 
     public void updateBeat(int bpm) {
@@ -88,7 +94,9 @@ public class PulseLabel extends JLabel {
     	}
     	setFrameDelay(bpm);
     	this.currentFrame = 0;
-        animate();
+    	if(currentBeat<=beat) {
+    		animate();
+    	}
     }
 
     private void updateSprite() {
@@ -110,6 +118,45 @@ public class PulseLabel extends JLabel {
         BufferedImage sprite = currentSprite.getSubimage(currentFrame * spriteWidth, 0, spriteWidth, spriteHeight);
         setIcon(new ImageIcon(sprite));
     }
+    
+    public void animate1() {
+        Timer timer = new Timer(frameDelay, null); // Inicializar timer
+        timer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              // Código que se ejecutará cada vez que se produzca el evento
+              
+              //colocar frame correspondiente
+              switch(currentBeat) {
+              	case 1:
+              		if(currentFrame < totalFramesFirstBeat-1) {
+              			currentFrame++;
+              			updateSprite();
+              		}
+              		break;
+                default:
+                	if(currentBeat == beat) {
+                		if(currentFrame < totalFramesOtherBeat-1) {
+                			currentFrame++;
+                			updateSprite();
+                		}
+                	}else {
+                		if(currentFrame < totalFramesIdle-1) {
+                			currentFrame++;
+                			updateSprite();
+                		}
+                	}
+                	break;
+              }
+              
+              // Si se ha llegado al último frame, detener el timer
+              if (currentFrame == totalFramesFirstBeat - 1 || currentFrame == totalFramesOtherBeat - 1 || currentFrame == totalFramesIdle - 1) {
+            	  timer.stop();
+              }
+            }
+          });
+          timer.start(); // Iniciar timer
+    }
 
     public void animate() {
         // Iniciar una animación que dure el número de fotogramas especificado y tenga un retraso entre fotogramas determinado
@@ -117,13 +164,13 @@ public class PulseLabel extends JLabel {
     	// Colocar los frames correspondientes
         switch (currentBeat) {
             case 1:
-                totalFrames = totalFramesFirstBeat;
+                totalFrames = this.totalFramesFirstBeat;
                 break;
             default:
                 if (currentBeat == beat) {
-                    totalFrames = totalFramesOtherBeat;
+                    totalFrames = this.totalFramesOtherBeat;
                 } else {
-                    totalFrames = totalFramesIdle;
+                    totalFrames = this.totalFramesIdle;
                 }
                 break;
         }
@@ -134,7 +181,6 @@ public class PulseLabel extends JLabel {
         
         // Ejecutar la tarea un número determinado de veces
         for (int i = 0; i < totalFrames - 1; i++) {
-        	System.out.println("A");
             try {
                 // Retrasar la ejecución de la tarea por el tiempo especificado
                 Thread.sleep(frameDelay);
