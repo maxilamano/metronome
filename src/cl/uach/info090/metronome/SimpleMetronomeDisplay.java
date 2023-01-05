@@ -138,7 +138,7 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
         });
         
         //beatIndicator
-        ui.add(beatIndicator());
+        //ui.add(beatIndicator());
         
         //agregar elementos a la ventana
         window.add(ui);
