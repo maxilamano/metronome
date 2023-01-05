@@ -45,18 +45,6 @@ public class MetronomeGUI implements java.awt.event.ActionListener{
 	    // añadir ui a la ventana
         simpleMetronomeDisplay.UI(window);
         
-        //añadir pulpo
-        JPanel octoPanel = new JPanel();
-        Octopus octopus= new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
-        octopus.setSprite(1);
-        octoPanel.setLayout(new BoxLayout(octoPanel, FlowLayout.CENTER));
-        octoPanel.add(octopus); // añadir el octopus al panel
-        window.add(octoPanel); // añadir el panel a la ventana
-	    
-        // Setting the size of frame
-        window.setSize(400, 600);
-  
-        window.setVisible(true);
         
         simpleMetronomeDisplay.tick();
 

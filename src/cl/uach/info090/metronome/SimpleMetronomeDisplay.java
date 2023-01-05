@@ -30,16 +30,28 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
     private JLabel BPMText;
     private JSlider BPMSlider;
     
-    private int minBPM = 60;
-    private int maxBPM = 240;
+    private int minBPM = 60; //BPM Minimo
+    private int maxBPM = 240; //BPM Maximo
     private int initialBPM; //valor inicial de bpm
+    
+    //indicador de pulso
+    private Octopus beat1;
+    private Octopus beat2;
+    private Octopus beat3;
+    private Octopus beat4;
 
 	public SimpleMetronomeDisplay() {
-		minBPM = 60;
-	    maxBPM = 240;
-	    initialBPM = (maxBPM - minBPM) / 2 + minBPM;
+		this.minBPM = 60;
+	    this.maxBPM = 240;
+	    this.initialBPM = (maxBPM - minBPM) / 2 + minBPM;
 		this.BPMSlider = new JSlider(minBPM, maxBPM, initialBPM); //Slider para cambiar BPM
 	    this.BPMText = new JLabel(); //Texto que indica los BPM actuales
+	    
+	    //definir indicadores de pulso
+	    this.beat1 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
+	    this.beat2 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
+	    this.beat3 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
+	    this.beat4 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
 	}
 	
 	
@@ -55,7 +67,7 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	}
 
 
-
+	/*
 	public SimpleMetronomeDisplay(LayoutManager layout) {
 		super(layout);
 		// TODO Auto-generated constructor stub
@@ -70,6 +82,7 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 		super(layout, isDoubleBuffered);
 		// TODO Auto-generated constructor stub
 	}
+	*/
 	
 	private void playSound(String filePath) {
 	    try{
@@ -93,6 +106,17 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	public void tick() {
 		while (true) {
 	        playSound("tickSound.wav"); // reproducir sonido
+	        
+	        //reproducir animacion
+	        beat1.setSprite(2);
+	        beat2.setSprite(2);
+	        beat3.setSprite(1);
+	        beat4.setSprite(0);
+	        
+	        beat1.setSprite(0);
+	        beat2.setSprite(0);
+	        beat3.setSprite(0);
+	        beat4.setSprite(1);
 
 	        // calcular el intervalo de tiempo en milisegundos entre ejecuciones del metrónomo
 	        int interval = 60000 / BPMSlider.getValue();
@@ -110,12 +134,26 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	public void UI(JFrame window) {
   
   
-        // Crear panel
-        JPanel ui = new JPanel();
+		JPanel ui = new JPanel(); //crear panel de UI
+		ui.setLayout(new BoxLayout(ui, BoxLayout.Y_AXIS)); //definir layout vertical
+		
+		ui.add(sliderPanel());
+		ui.add(beatIndicator());
+        
+        window.add(ui); //agregar elementos a la ventana
+        
+        window.setSize(400, 600); // definir tamaño de la ventana
+  
+        window.setVisible(true); //hacer visible el contenido
+	}
+	
+	private JPanel sliderPanel() {
+		// Crear panel
+        JPanel sliderPanel = new JPanel();
         
   
         // Añadir slider con indicacion de bpm
-        ui.setLayout(new BoxLayout(ui, BoxLayout.Y_AXIS)); //crear layout
+        sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.Y_AXIS)); //crear layout
         BPMSlider.setAlignmentX(Component.CENTER_ALIGNMENT); //centrar slider
         BPMText.setAlignmentX(Component.CENTER_ALIGNMENT); //centrar texto BPM
         
@@ -123,10 +161,10 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
         BPMText.setText(String.valueOf(initialBPM)); //definir texto como valor inicial BPM
         
         // Añadir slider con indicacion de bpm
-        ui.add(BPMSlider);
-        ui.add(BPMText);
+        sliderPanel.add(BPMSlider);
+        sliderPanel.add(BPMText);
         // color de fondo
-        ui.setBackground(Color.white);
+        sliderPanel.setBackground(Color.white);
         
         
         BPMSlider.addChangeListener(new ChangeListener() {
@@ -137,55 +175,26 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
             }
         });
         
-        //beatIndicator
-        //ui.add(beatIndicator());
-        
-        //agregar elementos a la ventana
-        window.add(ui);
+        return sliderPanel;
 	}
 	
-	public JPanel beatIndicator(){
-		JPanel beatIndicator = new JPanel(); //panel que muestra visualmente el pulso
-		beatIndicator.setLayout(new BoxLayout(beatIndicator, BoxLayout.X_AXIS));
-		beatIndicator.setBackground(Color.white);
+	private JPanel beatIndicator(){
 		
-		//crear cuatro circulos (beats)
-		JLabel beat1 = new JLabel();
-		beat1.setOpaque(true);
-		beat1.setBackground(Color.red);
-
-		JLabel beat2 = new JLabel();
-		beat2.setOpaque(true);
-		beat2.setBackground(Color.gray);
-
-		JLabel beat3 = new JLabel();
-		beat3.setOpaque(true);
-		beat3.setBackground(Color.gray);
-
-		JLabel beat4 = new JLabel();
-		beat4.setOpaque(true);
-		beat4.setBackground(Color.gray);
-		
-		// Crea un borde redondeado
-		Border border = new LineBorder(Color.black, 1, true);
-
-		// Establece el borde redondeado en cada JLabel
-		beat1.setBorder(border);
-		beat2.setBorder(border);
-		beat3.setBorder(border);
-		beat4.setBorder(border);
-
-		// Establece el tamaño de cada JLabel
-		beat1.setPreferredSize(new Dimension(30, 30));
-		beat2.setPreferredSize(new Dimension(30, 30));
-		beat3.setPreferredSize(new Dimension(30, 30));
-		beat4.setPreferredSize(new Dimension(30, 30));
-		
-		//agregarlos al panel
-		beatIndicator.add(beat1);
-		beatIndicator.add(beat2);
-		beatIndicator.add(beat3);
-		beatIndicator.add(beat4);
+		//añadir pulpo
+        JPanel beatIndicator = new JPanel();
+        beatIndicator.setLayout(new BoxLayout(beatIndicator, BoxLayout.Y_AXIS)); //crear layout
+        
+        //inicializar sprites por defecto (idle)
+        beat1.setSprite(0);
+        beat2.setSprite(0);
+        beat3.setSprite(0);
+        beat4.setSprite(0);
+        
+        //añadir beats a beatIndicator
+        beatIndicator.add(beat1);
+        beatIndicator.add(beat2);
+        beatIndicator.add(beat3);
+        beatIndicator.add(beat4);
 		
 		//por ultimo retornar el panel
 		return beatIndicator;
