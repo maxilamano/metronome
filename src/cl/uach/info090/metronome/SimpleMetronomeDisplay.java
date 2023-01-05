@@ -35,10 +35,10 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
     private int initialBPM; //valor inicial de bpm
     
     //indicador de pulso
-    private Octopus beat1;
-    private Octopus beat2;
-    private Octopus beat3;
-    private Octopus beat4;
+    private PulseLabel beat1;
+    private PulseLabel beat2;
+    private PulseLabel beat3;
+    //private Octopus beat4;
 
 	public SimpleMetronomeDisplay() {
 		this.minBPM = 60;
@@ -48,10 +48,15 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	    this.BPMText = new JLabel(); //Texto que indica los BPM actuales
 	    
 	    //definir indicadores de pulso
+	    /*
 	    this.beat1 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
 	    this.beat2 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
 	    this.beat3 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
 	    this.beat4 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
+	    */
+	    this.beat1 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png",200,130,3,8,2,BPMSlider.getValue(),2);
+	    this.beat2 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png",200,130,3,8,2,BPMSlider.getValue(),3);
+	    this.beat3 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png",200,130,3,8,2,BPMSlider.getValue(),4);
 	}
 	
 	
@@ -108,6 +113,7 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	        playSound("tickSound.wav"); // reproducir sonido
 	        
 	        //reproducir animacion
+	        /*
 	        beat1.setSprite(2);
 	        beat2.setSprite(2);
 	        beat3.setSprite(1);
@@ -117,7 +123,12 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	        beat2.setSprite(0);
 	        beat3.setSprite(0);
 	        beat4.setSprite(1);
-
+	        */
+	        
+	        beat1.updateBeat(BPMSlider.getValue());
+	        beat2.updateBeat(BPMSlider.getValue());
+	        beat3.updateBeat(BPMSlider.getValue());
+	        
 	        // calcular el intervalo de tiempo en milisegundos entre ejecuciones del metrónomo
 	        int interval = 60000 / BPMSlider.getValue();
 
@@ -185,16 +196,18 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
         beatIndicator.setLayout(new BoxLayout(beatIndicator, BoxLayout.Y_AXIS)); //crear layout
         
         //inicializar sprites por defecto (idle)
+        /*
         beat1.setSprite(0);
         beat2.setSprite(0);
         beat3.setSprite(0);
         beat4.setSprite(0);
+        */
         
         //añadir beats a beatIndicator
         beatIndicator.add(beat1);
         beatIndicator.add(beat2);
         beatIndicator.add(beat3);
-        beatIndicator.add(beat4);
+        //beatIndicator.add(beat4);
 		
 		//por ultimo retornar el panel
 		return beatIndicator;
