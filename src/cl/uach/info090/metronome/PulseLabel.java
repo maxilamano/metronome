@@ -82,7 +82,6 @@ public class PulseLabel extends JLabel {
     			frameDelay = 20;
     		}
     	}
-    	System.out.println(frameDelay);
     }
 
     public void updateBeat(int bpm) {
@@ -120,46 +119,8 @@ public class PulseLabel extends JLabel {
     }
     
     public void animate1() {
-        Timer timer = new Timer(frameDelay, null); // Inicializar timer
-        timer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-              // Código que se ejecutará cada vez que se produzca el evento
-              
-              //colocar frame correspondiente
-              switch(currentBeat) {
-              	case 1:
-              		if(currentFrame < totalFramesFirstBeat-1) {
-              			currentFrame++;
-              			updateSprite();
-              		}
-              		break;
-                default:
-                	if(currentBeat == beat) {
-                		if(currentFrame < totalFramesOtherBeat-1) {
-                			currentFrame++;
-                			updateSprite();
-                		}
-                	}else {
-                		if(currentFrame < totalFramesIdle-1) {
-                			currentFrame++;
-                			updateSprite();
-                		}
-                	}
-                	break;
-              }
-              
-              // Si se ha llegado al último frame, detener el timer
-              if (currentFrame == totalFramesFirstBeat - 1 || currentFrame == totalFramesOtherBeat - 1 || currentFrame == totalFramesIdle - 1) {
-            	  timer.stop();
-              }
-            }
-          });
-          timer.start(); // Iniciar timer
-    }
-
-    public void animate() {
-        // Iniciar una animación que dure el número de fotogramas especificado y tenga un retraso entre fotogramas determinado
+        
+    	// Iniciar una animación que dure el número de fotogramas especificado y tenga un retraso entre fotogramas determinado
         int totalFrames;
     	// Colocar los frames correspondientes
         switch (currentBeat) {
@@ -193,5 +154,48 @@ public class PulseLabel extends JLabel {
             updateSprite();
         }
     }
+
+    public void animate() {
+        Thread animacionThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Iniciar una animación que dure el número de fotogramas especificado y tenga un retraso entre fotogramas determinado
+                int totalFrames;
+                // Colocar los frames correspondientes
+                switch (currentBeat) {
+                    case 1:
+                        totalFrames = totalFramesFirstBeat;
+                        break;
+                    default:
+                        if (currentBeat == beat) {
+                            totalFrames = totalFramesOtherBeat;
+                        } else {
+                            totalFrames = totalFramesIdle;
+                        }
+                        break;
+                }
+                
+                currentFrame = 0;
+                // Colocar el sprite inicial
+                updateSprite();
+                
+                // Ejecutar la tarea un número determinado de veces
+                for (int i = 0; i < totalFrames - 1; i++) {
+                    try {
+                        // Retrasar la ejecución de la tarea por el tiempo especificado
+                        Thread.sleep(frameDelay);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    
+                    // Avanzar al siguiente frame y actualizar el sprite
+                    currentFrame++;
+                    updateSprite();
+                }
+            }
+        });
+        animacionThread.start(); // Iniciar el hilo
+    }
+
 
 }

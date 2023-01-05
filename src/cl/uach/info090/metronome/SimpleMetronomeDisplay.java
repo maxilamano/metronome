@@ -33,30 +33,37 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
     private int minBPM = 60; //BPM Minimo
     private int maxBPM = 240; //BPM Maximo
     private int initialBPM; //valor inicial de bpm
+    private int currentBeat;
     
-    //indicador de pulso
+    //indicador de pulso (unicamente 3 ya que los tres se activan a la vez en el primer pulso)
     private PulseLabel beat1;
     private PulseLabel beat2;
     private PulseLabel beat3;
-    //private Octopus beat4;
+    
+    //sonidos para reproducir (se guardan en variables aparte para permitir la reproduccion simultanea)
+    Clip fxBeat1; //sonido del primer pulso
+    Clip fxBeat2; //sonido del segundo pulso
+    Clip fxBeat3; //sonido del tercer pulso
+    Clip fxBeat4; //sonido del cuarto pulso
 
 	public SimpleMetronomeDisplay() {
-		this.minBPM = 60;
-	    this.maxBPM = 240;
+		this.minBPM = 30;
+	    this.maxBPM = 350;
 	    this.initialBPM = (maxBPM - minBPM) / 2 + minBPM;
 		this.BPMSlider = new JSlider(minBPM, maxBPM, initialBPM); //Slider para cambiar BPM
 	    this.BPMText = new JLabel(); //Texto que indica los BPM actuales
+	    this.currentBeat = 1; //definir pulso actual (siempre empieza en 1)
 	    
-	    //definir indicadores de pulso
-	    /*
-	    this.beat1 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
-	    this.beat2 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
-	    this.beat3 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
-	    this.beat4 = new Octopus("octopusIdle.gif","octopusShoot.gif","octopusReady.gif");
-	    */
+	    //indicadores de pulso
 	    this.beat1 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png",200,130,3,8,2,BPMSlider.getValue(),2);
 	    this.beat2 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png",200,130,3,8,2,BPMSlider.getValue(),3);
 	    this.beat3 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png",200,130,3,8,2,BPMSlider.getValue(),4);
+	    
+	    //cargar sonidos
+	    this.fxBeat1 = loadSound("assets/sounds/fxPop.wav");
+	    this.fxBeat2 = loadSound("assets/sounds/fxSqueeze.wav");
+	    this.fxBeat3 = loadSound("assets/sounds/fxSqueeze.wav");
+	    this.fxBeat4 = loadSound("assets/sounds/fxSqueeze.wav");
 	}
 	
 	
@@ -70,47 +77,53 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	public JSlider getBPMSlider() {
 		return BPMSlider;
 	}
-
-
-	/*
-	public SimpleMetronomeDisplay(LayoutManager layout) {
-		super(layout);
-		// TODO Auto-generated constructor stub
-	}
-
-	public SimpleMetronomeDisplay(boolean isDoubleBuffered) {
-		super(isDoubleBuffered);
-		// TODO Auto-generated constructor stub
-	}
-
-	public SimpleMetronomeDisplay(LayoutManager layout, boolean isDoubleBuffered) {
-		super(layout, isDoubleBuffered);
-		// TODO Auto-generated constructor stub
-	}
-	*/
 	
-	private void playSound(String filePath) {
+	private Clip loadSound(String filePath) {
 	    try{
-	    	File soundPath = new File(filePath); //archivo de audio
-	    	if(soundPath.exists()){
-	    		AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundPath);
-	    		Clip clip = AudioSystem.getClip(); //reproductor
-	    		clip.open(audioInput);//abrir clip
-	    		clip.start();//reproducir clip de audio
-	    	}else{
-	    		System.out.println("Sonido faltante! ("+filePath+").");
-	    	}
-	    	
+	        File soundPath = new File(filePath); //archivo de audio
+	        if(soundPath.exists()){
+	            AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundPath);
+	            Clip clip = AudioSystem.getClip(); //reproductor
+	            clip.open(audioInput);//abrir clip
+	            return clip;
+	        }else{
+	            System.out.println("Sonido faltante! ("+filePath+").");
+	        }
 	    }
 	    catch(Exception e)
 	    {
-	    	System.out.println(e);
+	        System.out.println(e);
+	    }
+	    return null;
+	}
+	
+	public void playSound(Clip clip) {
+	    if (clip != null) {
+	        clip.setFramePosition(0);
+	        clip.start();
 	    }
 	}
 
 	public void tick() {
 		while (true) {
-	        playSound("tickSound.wav"); // reproducir sonido
+			switch(currentBeat) {
+				case 1:
+					playSound(fxBeat1); // reproducir sonido
+					currentBeat++; //aumentar beat actual
+					break;
+				case 2:
+					playSound(fxBeat2); // reproducir sonido
+					currentBeat++; //aumentar beat actual
+					break;
+				case 3:
+					playSound(fxBeat3); // reproducir sonido
+					currentBeat++; //aumentar beat actual
+					break;
+				case 4:
+					playSound(fxBeat4); // reproducir sonido
+					currentBeat = 1; //regresar beat a 1
+					break;
+			}
 	        
 	        //reproducir animacion
 	        /*
