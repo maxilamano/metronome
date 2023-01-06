@@ -1,12 +1,8 @@
 package cl.uach.info090.metronome;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.Timer;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -14,6 +10,7 @@ import java.lang.Thread;
 
 public class PulseLabel extends JLabel {
 	
+	private static final long serialVersionUID = 1L;
 	//los 3 sprites correspondientes (sprite sheet)
 	private BufferedImage spriteSheetIdle;
 	private BufferedImage spriteSheetFirstBeat;
@@ -28,7 +25,6 @@ public class PulseLabel extends JLabel {
     private int totalFramesIdle;
     private int totalFramesFirstBeat;
     private int totalFramesOtherBeat;
-    private int totalFramesOff;
     
     private int currentFrame; //frame actual (universal entre sprites, debe volver a 0 al cambiar de sprite)
     
@@ -37,7 +33,7 @@ public class PulseLabel extends JLabel {
     private int currentBeat; //pulsto actual (inicializado en 1)
     private int frameDelay; //velocidad de animacion (segun bpm), indica el tiempo entre cada fotograma
 
-    public PulseLabel(String idleSpriteSheetPath, String firstBeatSpriteSheetPath, String otherBeatSpriteSheetPath,String offSpriteSheetPath, int spriteWidth, int spriteHeight, int totalFramesIdle, int totalFramesFirstBeat, int totalFramesOtherBeat, int totalFramesOff, int bpm, int beat) {
+    public PulseLabel(String idleSpriteSheetPath, String firstBeatSpriteSheetPath, String otherBeatSpriteSheetPath,String offSpriteSheetPath, int spriteWidth, int spriteHeight, int totalFramesIdle, int totalFramesFirstBeat, int totalFramesOtherBeat, int bpm, int beat) {
         // Cargar el sprite sheets desde el archivo
         try {
             spriteSheetIdle = ImageIO.read(new File(idleSpriteSheetPath));
@@ -68,7 +64,6 @@ public class PulseLabel extends JLabel {
         this.totalFramesIdle = totalFramesIdle;
         this.totalFramesFirstBeat = totalFramesFirstBeat;
         this.totalFramesOtherBeat = totalFramesOtherBeat;
-        this.totalFramesOff = totalFramesOff;
         this.currentFrame = 0;
         
         this.beat = beat;

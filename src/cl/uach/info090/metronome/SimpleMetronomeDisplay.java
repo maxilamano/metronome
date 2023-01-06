@@ -6,29 +6,24 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-
+import java.io.Serializable;
 import javax.swing.event.ChangeListener;
-import javax.swing.plaf.basic.BasicSliderUI;
 import javax.swing.event.ChangeEvent;
 import java.lang.Thread;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 
-public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
-	
+public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay, Serializable{
+	private static final long serialVersionUID = 1L;
 	// texto bpm
     private JLabel BPMText;
     private JSlider BPMSlider;
@@ -62,9 +57,9 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	    running = new AtomicBoolean(false);
 	    
 	    //indicadores de pulso
-	    this.beat1 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png","assets/octopus/octopusHappy_Sheet.png",234,107,3,8,2,1,BPMSlider.getValue(),2);
-	    this.beat2 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png","assets/octopus/octopusHappy_Sheet.png",234,107,3,8,2,1,BPMSlider.getValue(),3);
-	    this.beat3 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png","assets/octopus/octopusHappy_Sheet.png",234,107,3,8,2,1,BPMSlider.getValue(),4);
+	    this.beat1 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png","assets/octopus/octopusHappy_Sheet.png",234,107,3,8,2,BPMSlider.getValue(),2);
+	    this.beat2 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png","assets/octopus/octopusHappy_Sheet.png",234,107,3,8,2,BPMSlider.getValue(),3);
+	    this.beat3 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png","assets/octopus/octopusHappy_Sheet.png",234,107,3,8,2,BPMSlider.getValue(),4);
 	    
 	    //cargar sonidos
 	    this.fxBeat1 = loadSound("assets/sounds/fxPop.wav");
@@ -184,6 +179,7 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 		
 		ui.add(sliderPanel());
 		ui.add(beatIndicator());
+		
         
         window.add(ui); //agregar elementos a la ventana
         
@@ -224,14 +220,25 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
         sliderPanel.setBackground(backgroundColor);
         
         
-        BPMSlider.addChangeListener(new ChangeListener() {
+        BPMSlider.addChangeListener(new ChangeListener() { //funcion al interactuar
         	public void stateChanged(ChangeEvent e) {
         		// Actualiza el valor de la etiqueta con el nuevo valor del BPMSlider
         		int BPMValue = BPMSlider.getValue();
         		BPMText.setText(String.valueOf(BPMValue));
+        		startButton.requestFocusInWindow(); //mantiene focus en el boton start
+            }
+        });
+        BPMSlider.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                startButton.requestFocusInWindow(); //mantiene el focus en el boton start
             }
         });
         
+        
+        BPMSlider.setUI(new CustomSliderUI(BPMSlider));
+        
+        BPMSlider.setBackground(backgroundColor);
         return sliderPanel;
 	}
 	

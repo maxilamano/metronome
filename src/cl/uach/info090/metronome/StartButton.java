@@ -1,17 +1,16 @@
 package cl.uach.info090.metronome;
 
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 public class StartButton extends JButton{
+	private static final long serialVersionUID = 1L;
 	private BufferedImage image;
 	private BufferedImage imagePressed;
 	private boolean state; //falso para mostrar image, verdadero para imagePressed
@@ -43,6 +42,8 @@ public class StartButton extends JButton{
                 changeState();
             }
         });
+        
+        this.requestFocusInWindow(); //mantener focus
 	}
 	
 	public void changeState() {
