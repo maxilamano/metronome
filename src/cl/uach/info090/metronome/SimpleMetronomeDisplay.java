@@ -1,28 +1,31 @@
 package cl.uach.info090.metronome;
 
 import java.awt.Color;
+
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.LayoutManager;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicSliderUI;
 import javax.swing.event.ChangeEvent;
 import java.lang.Thread;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 
 public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	
@@ -45,6 +48,9 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
     Clip fxBeat2; //sonido del segundo pulso
     Clip fxBeat3; //sonido del tercer pulso
     Clip fxBeat4; //sonido del cuarto pulso
+    
+    private StartButton startButton;
+    AtomicBoolean running; //indica si esta funcionando los pulsos (se usa para llamar tick() )
 
 	public SimpleMetronomeDisplay() {
 		this.minBPM = 30;
@@ -53,17 +59,28 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 		this.BPMSlider = new JSlider(minBPM, maxBPM, initialBPM); //Slider para cambiar BPM
 	    this.BPMText = new JLabel(); //Texto que indica los BPM actuales
 	    this.currentBeat = 1; //definir pulso actual (siempre empieza en 1)
+	    running = new AtomicBoolean(false);
 	    
 	    //indicadores de pulso
-	    this.beat1 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png",200,130,3,8,2,BPMSlider.getValue(),2);
-	    this.beat2 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png",200,130,3,8,2,BPMSlider.getValue(),3);
-	    this.beat3 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png",200,130,3,8,2,BPMSlider.getValue(),4);
+	    this.beat1 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png","assets/octopus/octopusHappy_Sheet.png",234,107,3,8,2,1,BPMSlider.getValue(),2);
+	    this.beat2 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png","assets/octopus/octopusHappy_Sheet.png",234,107,3,8,2,1,BPMSlider.getValue(),3);
+	    this.beat3 = new PulseLabel("assets/octopus/octopusIdle_Sheet.png","assets/octopus/octopusShoot_Sheet.png","assets/octopus/octopusReady_Sheet.png","assets/octopus/octopusHappy_Sheet.png",234,107,3,8,2,1,BPMSlider.getValue(),4);
 	    
 	    //cargar sonidos
 	    this.fxBeat1 = loadSound("assets/sounds/fxPop.wav");
 	    this.fxBeat2 = loadSound("assets/sounds/fxSqueeze.wav");
 	    this.fxBeat3 = loadSound("assets/sounds/fxSqueeze.wav");
 	    this.fxBeat4 = loadSound("assets/sounds/fxSqueeze.wav");
+	    
+	    //crear boton start
+	    this.startButton = new StartButton("assets/button/startButton.png","assets/button/stopButton.png");
+	    // Añade un action listener al botón para activar o desactivar tick()
+        startButton.addActionListener((ActionListener) new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent a) {
+                running.set(!running.get());
+            }
+        });
 	}
 	
 	
@@ -106,60 +123,64 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 
 	public void tick() {
 		while (true) {
-			switch(currentBeat) {
-				case 1:
-					playSound(fxBeat1); // reproducir sonido
-					currentBeat++; //aumentar beat actual
-					break;
-				case 2:
-					playSound(fxBeat2); // reproducir sonido
-					currentBeat++; //aumentar beat actual
-					break;
-				case 3:
-					playSound(fxBeat3); // reproducir sonido
-					currentBeat++; //aumentar beat actual
-					break;
-				case 4:
-					playSound(fxBeat4); // reproducir sonido
-					currentBeat = 1; //regresar beat a 1
-					break;
-			}
-	        
-	        //reproducir animacion
-	        /*
-	        beat1.setSprite(2);
-	        beat2.setSprite(2);
-	        beat3.setSprite(1);
-	        beat4.setSprite(0);
-	        
-	        beat1.setSprite(0);
-	        beat2.setSprite(0);
-	        beat3.setSprite(0);
-	        beat4.setSprite(1);
-	        */
-	        
-	        beat1.updateBeat(BPMSlider.getValue());
-	        beat2.updateBeat(BPMSlider.getValue());
-	        beat3.updateBeat(BPMSlider.getValue());
-	        
-	        // calcular el intervalo de tiempo en milisegundos entre ejecuciones del metrónomo
-	        int interval = 60000 / BPMSlider.getValue();
-
-	        try {
-	        	Thread.sleep(interval);
-	        } catch (InterruptedException e) {
-	        	System.out.println(e);
-	            // maneja la excepción en caso de que el hilo sea interrumpido
-	        }
-	    }
+			if(running.get()) {
+				
+				switch(currentBeat) {
+					case 1:
+						playSound(fxBeat1); // reproducir sonido
+						currentBeat++; //aumentar beat actual
+						break;
+					case 2:
+						playSound(fxBeat2); // reproducir sonido
+						currentBeat++; //aumentar beat actual
+						break;
+					case 3:
+						playSound(fxBeat3); // reproducir sonido
+						currentBeat++; //aumentar beat actual
+						break;
+					case 4:
+						playSound(fxBeat4); // reproducir sonido
+						currentBeat = 1; //regresar beat a 1
+						break;
+				}
+		        
+		        
+		        beat1.updateBeat(BPMSlider.getValue());
+		        beat2.updateBeat(BPMSlider.getValue());
+		        beat3.updateBeat(BPMSlider.getValue());
+		        
+		        // calcular el intervalo de tiempo en milisegundos entre ejecuciones del metrónomo
+		        int interval = 60000 / BPMSlider.getValue();
+	
+		        try {
+		        	Thread.sleep(interval);
+		        } catch (InterruptedException e) {
+		        	System.out.println(e);
+		            // maneja la excepción en caso de que el hilo sea interrumpido
+		        }
+		    }else {
+		    	currentBeat = 1;
+		    	beat1.resetBeat();
+		    	beat2.resetBeat();
+		    	beat3.resetBeat();
+		    }
+			
+		}
 		
 	}
 	
 	public void UI(JFrame window) {
-  
+		
+		//definir colores
+		Color borderColor = Color.decode("#DF9A00");
+		Color backgroundColor = Color.decode("#FFDE00");
+		
+		int borderThickness = 30; //grosor borde
   
 		JPanel ui = new JPanel(); //crear panel de UI
 		ui.setLayout(new BoxLayout(ui, BoxLayout.Y_AXIS)); //definir layout vertical
+		ui.setBorder(BorderFactory.createLineBorder(borderColor, borderThickness));
+        ui.setBackground(backgroundColor);
 		
 		ui.add(sliderPanel());
 		ui.add(beatIndicator());
@@ -181,6 +202,17 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
         BPMSlider.setAlignmentX(Component.CENTER_ALIGNMENT); //centrar slider
         BPMText.setAlignmentX(Component.CENTER_ALIGNMENT); //centrar texto BPM
         
+        //cambiar fuente texto
+        String fontFile = "assets/pixeled.ttf";
+        Font ttfFont = null;
+		try {
+			ttfFont = Font.createFont(Font.TRUETYPE_FONT, new File(fontFile));
+		} catch (FontFormatException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		ttfFont = ttfFont.deriveFont(10f);
+        BPMText.setFont(ttfFont);
         
         BPMText.setText(String.valueOf(initialBPM)); //definir texto como valor inicial BPM
         
@@ -188,7 +220,8 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
         sliderPanel.add(BPMSlider);
         sliderPanel.add(BPMText);
         // color de fondo
-        sliderPanel.setBackground(Color.white);
+        Color backgroundColor = Color.decode("#FFDE00");
+        sliderPanel.setBackground(backgroundColor);
         
         
         BPMSlider.addChangeListener(new ChangeListener() {
@@ -204,23 +237,37 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay{
 	
 	private JPanel beatIndicator(){
 		
-		//añadir pulpo
+		//definir colores
+		//Color borderColor = Color.decode("#DF9A00"); //TEST ONLY
+		Color backgroundColor = Color.decode("#FFDE00");
+		
+		//int borderThickness = 2; //grosor borde //TEST ONLY
+		
+		//añadir indicadores
         JPanel beatIndicator = new JPanel();
-        beatIndicator.setLayout(new BoxLayout(beatIndicator, BoxLayout.Y_AXIS)); //crear layout
         
-        //inicializar sprites por defecto (idle)
-        /*
-        beat1.setSprite(0);
-        beat2.setSprite(0);
-        beat3.setSprite(0);
-        beat4.setSprite(0);
-        */
+        //propiedades del panel
+        beatIndicator.setLayout(new BoxLayout(beatIndicator, BoxLayout.Y_AXIS)); //crear layout
+        //beatIndicator.setBorder(BorderFactory.createLineBorder(borderColor, borderThickness)); //TEST ONLY
+        beatIndicator.setBackground(backgroundColor);
+        
+        //centrar indicadores
+        beat1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        beat2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        beat3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        //boton start
+        startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
         
         //añadir beats a beatIndicator
         beatIndicator.add(beat1);
         beatIndicator.add(beat2);
         beatIndicator.add(beat3);
-        //beatIndicator.add(beat4);
+        
+        //añadir boton que controla los indicadores
+        beatIndicator.add(new Box.Filler(new Dimension(10, 20), new Dimension(10, 20), new Dimension(10, 20)));
+        beatIndicator.add(startButton);
 		
 		//por ultimo retornar el panel
 		return beatIndicator;
