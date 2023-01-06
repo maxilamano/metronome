@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Created-By: maxilamano
+Main-Class: cl.uach.info090.metronome.metronomeGUI.java
+Application-Icon: assets/icon.png
+SplashScreen-Image:assets/icon.png
