@@ -1,7 +1,6 @@
 package cl.uach.info090.metronome;
 
 import java.awt.Color;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -22,31 +21,91 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.*;
 
+/**
+ * Clase SimpleMetronomeDisplay.
+ * Extiende a JPanel.
+ * Implementa MetronomeDisplay (tick()).
+ * se encarga de colocar los elementos correspondientes a la ventana.
+ * @author Maximiliano Medina Murillo
+ *
+ */
 public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay, Serializable{
+	
+	/**
+	 * SERIALUID
+	 */
 	private static final long serialVersionUID = 1L;
 	// texto bpm
+	/**
+	 * Texto que indica los BPM actuales.
+	 */
     private JLabel BPMText;
+    /**
+     * Slider que controla los BPM.
+     */
     private JSlider BPMSlider;
     
+    /**
+     * BPM minimos admitidos por el slider.
+     */
     private int minBPM = 60; //BPM Minimo
+    /**
+     * BPM maximos admitidos por el slider.
+     */
     private int maxBPM = 240; //BPM Maximo
+    /**
+     * Valor inicial de BPM
+     */
     private int initialBPM; //valor inicial de bpm
+    /**
+     * Pulso actual. Itera entre 1 a 4.
+     */
     private int currentBeat;
     
     //indicador de pulso (unicamente 3 ya que los tres se activan a la vez en el primer pulso)
+    /**
+     * Primer indicador de pulso.
+     */
     private PulseLabel beat1;
+    /**
+     * Segundo indicador de pulso.
+     */
     private PulseLabel beat2;
+    /**
+     * Tercer indicador de pulso.
+     */
     private PulseLabel beat3;
     
     //sonidos para reproducir (se guardan en variables aparte para permitir la reproduccion simultanea)
+    /**
+     * Sonido del primer pulso.
+     */
     Clip fxBeat1; //sonido del primer pulso
+    /**
+     * Sonido del segundo pulso.
+     */
     Clip fxBeat2; //sonido del segundo pulso
+    /**
+     * Sonido del tercer pulso.
+     */
     Clip fxBeat3; //sonido del tercer pulso
+    /**
+     * Sonido del cuarto pulso.
+     */
     Clip fxBeat4; //sonido del cuarto pulso
     
+    /**
+     * StartButton utilizado para controlar a los PulseLabel.
+     */
     private StartButton startButton;
+    /**
+     * Indica si se esta ejecutando el metronomo (controlando a la funcion tick()).
+     */
     AtomicBoolean running; //indica si esta funcionando los pulsos (se usa para llamar tick() )
-
+    
+    /**
+     * Constructor SimpleMetronomeDisplay
+     */
 	public SimpleMetronomeDisplay() {
 		this.minBPM = 30;
 	    this.maxBPM = 350;
@@ -79,17 +138,27 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay, 
 	}
 	
 	
-
+	/**
+	 * Getter para BPMText.
+	 * @return Retorna Un JLabel BPMText, el cual contiene los BPM actuales.
+	 */
 	public JLabel getBPMText() {
 		return BPMText;
 	}
 
-
-
+	/**
+	 * Getter para BPMSlider.
+	 * @return Retorna un JSlider BPMSlider, el cual controla los BPM.
+	 */
 	public JSlider getBPMSlider() {
 		return BPMSlider;
 	}
 	
+	/**
+	 * Funcion loadSound, encargada de cargar sonidos. Compatible con archivos PCM de cualquier formato.
+	 * @param filePath Ruta del sonido
+	 * @return retorna el audio Clip
+	 */
 	private Clip loadSound(String filePath) {
 	    try{
 	        File soundPath = new File(filePath); //archivo de audio
@@ -109,13 +178,20 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay, 
 	    return null;
 	}
 	
+	/**
+	 * Reproduce un audio previamente cargado
+	 * @param clip Clip de audio a reproducir
+	 */
 	public void playSound(Clip clip) {
 	    if (clip != null) {
 	        clip.setFramePosition(0);
 	        clip.start();
 	    }
 	}
-
+	
+	/**
+	 * Funcion tick() encargada de controlar los pulsos y sus indicaciones tanto visuales como auditivas segun BPM, actualiza su ritmo cada vez que pase un pulso (NO ADMITE BPM CON VALORES INFERIORES O IGUALES A 0)
+	 */
 	public void tick() {
 		while (true) {
 			if(running.get()) {
@@ -164,6 +240,10 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay, 
 		
 	}
 	
+	/**
+	 * Funcion UI que coloca todos los elementos correspondientes en la ventana usando paneles (JPanel), haciendo uso de las funciones beatIndicator() y sliderPanel().
+	 * @param window Ventana en cual colocar los elementos, debe ser JFrame.
+	 */
 	public void UI(JFrame window) {
 		
 		//definir colores
@@ -188,6 +268,10 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay, 
         window.setVisible(true); //hacer visible el contenido
 	}
 	
+	/**
+	 * Funcion sliderPanel() usada por UI() para crear un JPanel con el slider que controla los BPM y su label indicando los BPM actuales.
+	 * @return Retorna el JPanel con los elementos agregados
+	 */
 	private JPanel sliderPanel() {
 		// Crear panel
         JPanel sliderPanel = new JPanel();
@@ -242,6 +326,10 @@ public class SimpleMetronomeDisplay extends JPanel implements MetronomeDisplay, 
         return sliderPanel;
 	}
 	
+	/**
+	 * Funcion BeatIndicator() usada por UI() para crear un JPanel con los indicadores visuales PulseLabel, ademas de un boton StartButton que activa y desactiva los indicadores
+	 * @return Retorna un JPanel con los elementos agregados
+	 */
 	private JPanel beatIndicator(){
 		
 		//definir colores

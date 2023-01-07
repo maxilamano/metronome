@@ -9,12 +9,37 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
+/**
+ * Clase StartButton
+ * extiende a JButton
+ * Utilizada para obtener un boton con imagen personalizada que cambia una vez clickeada
+ * @author Maximiliano Medina Murillo
+ *
+ */
 public class StartButton extends JButton{
+	
+	/**
+	 * SERIALUID
+	 */
 	private static final long serialVersionUID = 1L;
+	/**
+	 * Imagen inicial del botón.
+	 */
 	private BufferedImage image;
+	/**
+	 * Imagen al presionar el botón.
+	 */
 	private BufferedImage imagePressed;
+	/**
+	 * Estado actual (Start/Stop)
+	 */
 	private boolean state; //falso para mostrar image, verdadero para imagePressed
 
+	/**
+	 * Constructor StartButton
+	 * @param imagePath Ruta de imagen por defecto del boton
+	 * @param imagePressedPath Ruta de la imagen clickeada del boton
+	 */
 	public StartButton(String imagePath, String imagePressedPath) {
 		state = false; //empieza con la imagen inicial
 		
@@ -46,6 +71,9 @@ public class StartButton extends JButton{
         this.requestFocusInWindow(); //mantener focus
 	}
 	
+	/**
+	 * Funcion changeState() usada para cambiar entre activado o desactivado con su imagen core¡respondiente
+	 */
 	public void changeState() {
 		if(state == true) {
 			state = false;

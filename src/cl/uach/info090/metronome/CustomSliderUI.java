@@ -15,16 +15,39 @@ import javax.swing.JComponent;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
 
+/**
+ * Clase CustomSliderUI
+ * Extiende a BasicSliderUI
+ * CustomUI que modifica la apariencia y comportamiento del slider a parametros predefinidos no personalizables
+ * @author Maximiliano Medina Murillo
+ *
+ */
 public class CustomSliderUI extends BasicSliderUI {
 	
 	//cargar thumbs para slider
+	/**
+	 * Imagen del thumb del slider para valores menores a 100
+	 */
     BufferedImage thumb1Load = null;
+    /**
+     * Imagen del thumb del slider para valores mayores a 100 y menores a 200
+     */
     BufferedImage thumb2Load = null;
+    
+    /**
+     * Imagen del thumb para valores mayores a 200
+     */
     BufferedImage thumb3Load = null;
     
+    /**
+     * Slider a utilizar para calcular que thubm se debe utilizar
+     */
     JSlider slider;
 	
-
+    /**
+     * Constructor CustomSliderUI
+     * @param slider Slider que se utilizara para cambiar el icono del thumb segun el valor del slider
+     */
 	public CustomSliderUI(JSlider slider) {
 		super(slider);
 		try {
